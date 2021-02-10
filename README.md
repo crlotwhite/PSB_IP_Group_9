@@ -5,6 +5,10 @@ pip install -r requirements.txt
 
 # not PyCharm Setep
 pip install venv
+
 python -m venv venv
+
 ./venv/bin/activate.bat
+
 pip install -r requirements.txt
+
