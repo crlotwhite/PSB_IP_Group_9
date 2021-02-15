@@ -3,7 +3,7 @@
 # PyCharm Setup
 pip install -r requirements.txt
 
-# not PyCharm Setep
+# not PyCharm Step
 pip install venv
 
 python -m venv venv
