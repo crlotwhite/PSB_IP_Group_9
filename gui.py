@@ -7,22 +7,44 @@
 
 import sys
 
-import tkinter as tk
+from tkinter import *
 
 import tkinter.ttk as ttk
 
+from game_manager import GameManager
 
-class Root(tk.Tk):
-    def mainloop(self, n=0):
-        print('a')
-        super(Root, self).mainloop()
 
-    def update(self):
-        print('b')
+def core_loop():
+    pass
 
+
+cc = 0
+root = Tk()
+var = StringVar()
+
+
+def update_display():
+    global gm
+    global root
+
+    unit_slot = gm.unit_slot
+
+    for slot in unit_slot:
+        cx, cy = slot.character_position
+
+        root.Battler.create_image(cx, cy, anchor=NW, image=slot.character_image)
+
+        global cc
+        var.set(str(cc))
+
+        if cc < 10:
+            cc += 1
+        else:
+            cc = 0
+
+    root.after(100, update_display)
 
 if __name__ == '__main__':
-    root = Root()
 
     _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
     _fgcolor = '#000000'  # X11 color: 'black'
@@ -46,10 +68,10 @@ if __name__ == '__main__':
     root.configure(highlightbackground="#d9d9d9")
     root.configure(highlightcolor="black")
 
-    menubar = tk.Menu(font="TkMenuFont", bg=_bgcolor, fg=_fgcolor)
+    menubar = Menu(font="TkMenuFont", bg=_bgcolor, fg=_fgcolor)
     root.configure(menu=menubar)
 
-    root.Battler = tk.Canvas(root)
+    root.Battler = Canvas(root)
     root.Battler.place(relx=0.281, rely=0.0, relheight=1.0, relwidth=0.719)
     root.Battler.configure(background="#d9d9d9")
     root.Battler.configure(borderwidth="2")
@@ -60,7 +82,7 @@ if __name__ == '__main__':
     root.Battler.configure(selectbackground="blue")
     root.Battler.configure(selectforeground="white")
 
-    root.Label1 = tk.Label(root)
+    root.Label1 = Label(root)
     root.Label1.place(relx=0.013, rely=0.013, height=21, width=34)
     root.Label1.configure(activebackground="#f9f9f9")
     root.Label1.configure(activeforeground="black")
@@ -74,7 +96,7 @@ if __name__ == '__main__':
     root.TSeparator1 = ttk.Separator(root)
     root.TSeparator1.place(relx=0.0, rely=0.063, relwidth=0.281)
 
-    root.Button1 = tk.Button(root, command=lambda x: print('1'))
+    root.Button1 = Button(root, command=lambda x: print('1'))
     root.Button1.place(relx=0.016, rely=0.083, height=24, width=24)
     root.Button1.configure(activebackground="#ececec")
     root.Button1.configure(activeforeground="#000000")
@@ -86,7 +108,7 @@ if __name__ == '__main__':
     root.Button1.configure(pady="0")
     root.Button1.configure(text='''C''')
 
-    root.lblCoin = tk.Label(root)
+    root.lblCoin = Label(root, textvariable=var)
     root.lblCoin.place(relx=0.066, rely=0.083, height=21, width=124)
     root.lblCoin.configure(background="#d9d9d9")
     root.lblCoin.configure(disabledforeground="#a3a3a3")
@@ -96,14 +118,14 @@ if __name__ == '__main__':
     root.TSeparator2 = ttk.Separator(root)
     root.TSeparator2.place(relx=0.0, rely=0.152, relwidth=0.283)
 
-    root.Label2 = tk.Label(root)
+    root.Label2 = Label(root)
     root.Label2.place(relx=0.013, rely=0.167, height=21, width=164)
     root.Label2.configure(background="#d9d9d9")
     root.Label2.configure(disabledforeground="#a3a3a3")
     root.Label2.configure(foreground="#000000")
     root.Label2.configure(text='''Game Log''')
 
-    root.txtLogBox = tk.Text(root)
+    root.txtLogBox = Text(root)
     root.txtLogBox.place(relx=0.0, rely=0.221, relheight=0.623, relwidth=0.284)
     root.txtLogBox.configure(background="white")
     root.txtLogBox.configure(font="TkTextFont")
@@ -115,7 +137,7 @@ if __name__ == '__main__':
     root.txtLogBox.configure(selectforeground="white")
     root.txtLogBox.configure(wrap="word")
 
-    root.Button2 = tk.Button(root)
+    root.Button2 = Button(root)
     root.Button2.place(relx=0.016, rely=0.919, height=27, width=64)
     root.Button2.configure(activebackground="#ececec")
     root.Button2.configure(activeforeground="#000000")
@@ -127,7 +149,7 @@ if __name__ == '__main__':
     root.Button2.configure(pady="0")
     root.Button2.configure(text='''Option''')
 
-    root.Button3 = tk.Button(root)
+    root.Button3 = Button(root)
     root.Button3.place(relx=0.163, rely=0.919, height=27, width=68)
     root.Button3.configure(activebackground="#ececec")
     root.Button3.configure(activeforeground="#000000")
@@ -140,6 +162,9 @@ if __name__ == '__main__':
     root.Button3.configure(text='''Restart''')
 
 
+    gm = GameManager()
+    root.after(100, update_display)
+    root.mainloop()
 
 
 

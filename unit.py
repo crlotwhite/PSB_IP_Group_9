@@ -85,7 +85,8 @@ class Player(Unit):
         set player name from user input.
         '''
 
-        name = input('What is this character\'s new name')
+        from tkinter.simpledialog import askstring
+        name = askstring('Create Character', 'What is this character\'s new name')
         self.name = name
 
     def choose_target(self):
