@@ -1,6 +1,6 @@
-from enum import Enum
+from choicesenum import ChoicesEnum
 
 
-class CharacterTypes(Enum):
+class CharacterTypes(ChoicesEnum):
     warrior = 'warrior'
     tanker = 'tanker'

@@ -14,16 +14,16 @@ class GameManager:
             self.hp_position = h
             self.rank_position = r
             self.unit = u
-            self.character_image = None #PhotoImage(file='./{}'.format(u.character_type))
-            self.rank_image = None #PhotoImage(file='./rank_{}'.format(u.level))
+            self.character_image = PhotoImage(file='./resources/{}.png'.format(u.character_type))
+            self.rank_image = PhotoImage(file='./resources/Rank{}.png'.format(u.level))
 
         def update_level_image(self):
-            self.rank_image = PhotoImage(file='./rank_{}'.format(self.unit.level))
+            self.rank_image = PhotoImage(file='./Rank{}.png'.format(self.unit.level))
 
     def __init__(self):
         self.unit_slot = []
 
-        character_types_list = list(map(str, CharacterTypes))
+        character_types_list = list(map(lambda x: x[1], CharacterTypes.choices()))
         is_user = True
         for c, h, r in zip(CHARACTER_POSITION_LIST, HP_POSITION_LIST, Rank_POSTION_LIST):
             character_type = choice(character_types_list)
@@ -34,3 +34,7 @@ class GameManager:
 
             self.unit_slot.append(self.Slot(c, h, r, unit))
             is_user = not is_user
+
+    def turn(self):
+        for slot in self.unit_slot:
+            slot.unit.do()
