@@ -57,7 +57,7 @@ class Unit:
         ''' Choose Target for Attack. this is Abstract Method. '''
         pass
 
-    def do(self):
+    def do(self, *args, **kwargs):
         '''
         Unit do someting. This is Abstract Method.
         Whenever the turn comes, do() is executed.
@@ -92,30 +92,19 @@ class Player(Unit):
         name = askstring('Create Character', 'What is this character\'s new name')
         self.name = name
 
-    def choose_target(self):
-        pass
+    def do(self, *args, **kwargs):
+        print(f'{self.name}\'s Turn.')
+        print(kwargs)
 
-    def do(self):
-        if True:
-            from tkinter.simpledialog import askstring
-            askstring('Menu', 'Menu')
-            print(f'{self.name}\'s Turn.')
-            return
-
-        # 메뉴 선택 만들기
-        selected = input()
-
-        if selected == 'a':
-            target = self.choose_target()
-            self.attack(target)
-        else:
-            self.heal()
+        # if kwargs['state'] == 'a':
+        #     target = kwargs['target']
+        #     self.attack(target)
+        # elif kwargs['state'] == 'h':
+        #     self.heal()
 
         self.eval_self()
-        '''
-        공격할지 않할지 고르고 해당 동작을 실행한다.
-        :return:
-        '''
+
+
 
 
 class AI(Unit):
@@ -128,7 +117,7 @@ class AI(Unit):
         print(f'AI {self.name} is here')
 
 
-    def do(self):
+    def do(self, *args, **kwargs):
         print(f'{self.name}\'s Turn.')
 
     def choose_target(self):
