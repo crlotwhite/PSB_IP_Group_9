@@ -34,12 +34,24 @@ class DisplayUpdateThread(threading.Thread):
     def run(self):
         global gm
         global root
+
+        # bg update
+
+        # slot update
         while True:
             unit_slot = gm.unit_slot
             for slot in unit_slot:
-                cx, cy = slot.character_position
 
+                # Character Image Update
+                cx, cy = slot.character_position
                 root.Battler.create_image(cx, cy, anchor=NW, image=slot.character_image)
+
+                # hp update
+                slot.hp_string_var.set(slot.unit.hp_for_display())
+
+                # Level update
+                lx, ly = slot.rank_position
+                root.Battler.create_image(lx, ly, anchor=NW, image=slot.rank_image)
 
                 global cc
                 var.set(str(cc))
@@ -49,7 +61,8 @@ class DisplayUpdateThread(threading.Thread):
                 else:
                     cc = 0
 
-            time.sleep(0.1)
+            time.sleep(0.1) # 0.1 seconds
+
 
 def core_loop():
     global gm
@@ -59,6 +72,23 @@ def core_loop():
     root.after(0, core_loop)
 
 
+def init_canvas(canvas, unit_slot):
+    ''' First, Static Data are Created on Canvas Object'''
+    for slot in unit_slot:
+        hp_label = Label(canvas, textvariable=slot.hp_string_var)
+        hp_x, hp_y = slot.hp_position
+        canvas.create_window(hp_x, hp_y, anchor=NW, window=hp_label)
+
+        name_label = Label(canvas, textvariable=slot.name_string_var)
+        name_x, name_y = slot.name_position
+        canvas.create_window(name_x, name_y, anchor=NW, window=name_label)
+
+        slot.hp_string_var.set(slot.unit.hp_for_display())
+        slot.name_string_var.set(slot.unit.name)
+
+
+
+
 if __name__ == '__main__':
 
     _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
@@ -66,7 +96,6 @@ if __name__ == '__main__':
     _compcolor = '#d9d9d9'  # X11 color: 'gray85'
     _ana1color = '#d9d9d9'  # X11 color: 'gray85'
     _ana2color = '#ececec'  # Closest X11 color: 'gray92'
-
 
     root.geometry("640x480")
     root.title("PSB Group 9")
@@ -178,6 +207,7 @@ if __name__ == '__main__':
 
     # Thread create and start
     gm = GameManager()
+    init_canvas(root.Battler, gm.unit_slot)
     display_updater = DisplayUpdateThread(1, 'display_updater', 1)
     display_updater.start()
     root.after(0, core_loop)

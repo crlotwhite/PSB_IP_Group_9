@@ -1,31 +1,35 @@
 CHARACTER_POSITION_LIST = [
     (20, 22), # Slot1
     (345, 22), # Slot2
-    (20, 177), # Slot3
-    (345, 177), # Slot4
+    (20, 187), # Slot3
+    (345, 187), # Slot4
     (20, 342), # Slot5
     (345, 342), # Slot6
 ]
 
-# TODO: 수정하기
 HP_POSITION_LIST = [
-    (210, 132), # Slot1
-    (523, 132), # Slot2
-    (210, 277), # Slot3
-    (523, 277), # Slot4
-    (210, 422), # Slot5
-    (523, 422) # Slot6
+    (33, 132), # Slot1
+    (356, 132), # Slot2
+    (33, 287), # Slot3
+    (356, 287), # Slot4
+    (33, 432), # Slot5
+    (356, 432) # Slot6
 ]
 
-RANK_POSTION_LIST = [
-    (289, 12),  # Slot1
-    (499, 12),  # Slot2
-    (289, 157),  # Slot3
-    (499, 157),  # Slot4
-    (289, 302),  # Slot5
-    (499, 302),  # Slot6
+RANK_POSITION_LIST = [
+    (110, 12),  # Slot1
+    (305, 12),  # Slot2
+    (110, 167),  # Slot3
+    (305, 167),  # Slot4
+    (110, 302),  # Slot5
+    (305, 302),  # Slot6
 ]
 
 NAME_POSITION_LIST = [
-
+    (33, 152), # Slot1
+    (356, 152), # Slot2
+    (33, 307), # Slot3
+    (356, 307), # Slot4
+    (33, 452), # Slot5
+    (356, 452) # Slot6
 ]

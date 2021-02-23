@@ -18,6 +18,9 @@ class Unit:
 
         print(f'Unit {id(self)} is here')
 
+    def hp_for_display(self):
+        return f'HP: {self.heath_point}/100'
+
     def attack(self, target):
         '''randomize integer for atk, and deducting hp from target'''
         if self.character_type == CharacterTypes.warrior:
