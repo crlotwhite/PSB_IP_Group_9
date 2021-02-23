@@ -7,7 +7,7 @@ CHARACTER_POSITION_LIST = [
     (345, 342), # Slot6
 ]
 
-HP_POSITION_LIST = [
+NAME_POSITION_LIST = [
     (33, 132), # Slot1
     (356, 132), # Slot2
     (33, 287), # Slot3
@@ -25,7 +25,7 @@ RANK_POSITION_LIST = [
     (305, 302),  # Slot6
 ]
 
-NAME_POSITION_LIST = [
+HP_POSITION_LIST = [
     (33, 152), # Slot1
     (356, 152), # Slot2
     (33, 307), # Slot3

@@ -5,8 +5,6 @@
 #  in conjunction with Tcl version 8.6
 #    Feb 12, 2021 08:57:35 PM JST  platform: Windows NT
 
-import sys
-
 from tkinter import *
 
 import tkinter.ttk as ttk
@@ -85,7 +83,6 @@ def init_canvas(canvas, unit_slot):
 
         slot.hp_string_var.set(slot.unit.hp_for_display())
         slot.name_string_var.set(slot.unit.name)
-
 
 
 
