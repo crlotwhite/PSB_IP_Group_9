@@ -93,6 +93,12 @@ class Player(Unit):
         pass
 
     def do(self):
+        if True:
+            from tkinter.simpledialog import askstring
+            askstring('Menu', 'Menu')
+            print(f'{self.name}\'s Turn.')
+            return
+
         # 메뉴 선택 만들기
         selected = input()
 
@@ -119,8 +125,8 @@ class AI(Unit):
         print(f'AI {self.name} is here')
 
 
-    def do(self, state):
-        pass
+    def do(self):
+        print(f'{self.name}\'s Turn.')
 
     def choose_target(self):
         '''choose the lowest health point from the user's characters'''

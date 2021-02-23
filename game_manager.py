@@ -25,7 +25,7 @@ class GameManager:
 
         character_types_list = list(map(lambda x: x[1], CharacterTypes.choices()))
         is_user = True
-        for c, h, r in zip(CHARACTER_POSITION_LIST, HP_POSITION_LIST, Rank_POSTION_LIST):
+        for c, h, r in zip(CHARACTER_POSITION_LIST, HP_POSITION_LIST, RANK_POSTION_LIST):
             character_type = choice(character_types_list)
             if is_user:
                 unit = Player(character_type)
