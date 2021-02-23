@@ -17,11 +17,15 @@ HP_POSITION_LIST = [
     (523, 422) # Slot6
 ]
 
-Rank_POSTION_LIST = [
+RANK_POSTION_LIST = [
     (289, 12),  # Slot1
     (499, 12),  # Slot2
     (289, 157),  # Slot3
     (499, 157),  # Slot4
     (289, 302),  # Slot5
     (499, 302),  # Slot6
+]
+
+NAME_POSITION_LIST = [
+
 ]

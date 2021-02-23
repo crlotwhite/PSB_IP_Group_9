@@ -17,17 +17,13 @@ import threading
 from game_manager import GameManager
 
 
-
-def core_loop():
-    pass
-
-
 cc = 0
 root = Tk()
 var = StringVar()
 
 
 # It is implemented as a thread to operate independently of any routine.
+# reference by https://www.tutorialspoint.com/python/python_multithreading.htm
 class DisplayUpdateThread(threading.Thread):
     def __init__(self, threadID, name, counter):
         threading.Thread.__init__(self)
@@ -55,29 +51,13 @@ class DisplayUpdateThread(threading.Thread):
 
             time.sleep(0.1)
 
-
-def update_display():
+def core_loop():
     global gm
     global root
 
-    unit_slot = gm.unit_slot
     gm.turn()
+    root.after(0, core_loop)
 
-    for slot in unit_slot:
-        cx, cy = slot.character_position
-
-        root.Battler.create_image(cx, cy, anchor=NW, image=slot.character_image)
-
-        global cc
-        var.set(str(cc))
-
-        if cc < 10:
-            cc += 1
-        else:
-            cc = 0
-
-    # Next frame Callback
-    root.after(100, update_display)
 
 if __name__ == '__main__':
 
@@ -196,13 +176,11 @@ if __name__ == '__main__':
     root.Button3.configure(pady="0")
     root.Button3.configure(text='''Restart''')
 
-
+    # Thread create and start
     gm = GameManager()
-
     display_updater = DisplayUpdateThread(1, 'display_updater', 1)
     display_updater.start()
-
-    # root.after(100, update_display)
+    root.after(0, core_loop)
     root.mainloop()
 
 
