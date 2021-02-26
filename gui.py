@@ -14,12 +14,12 @@ import threading
 
 from game_manager import GameManager
 
-
 # global variables
 cc = 0
 root = Tk()
-var = StringVar()
+coin_strvar = StringVar()
 player_control_dict = {}
+
 
 # It is implemented as a thread to operate independently of any routine.
 # reference by https://www.tutorialspoint.com/python/python_multithreading.htm
@@ -32,7 +32,7 @@ class DisplayUpdateThread(threading.Thread):
 
     def run(self):
         global gm
-        global root
+        global game_view
 
         # bg update
 
@@ -43,40 +43,49 @@ class DisplayUpdateThread(threading.Thread):
 
                 # Character Image Update
                 cx, cy = slot.character_position
-                root.Battler.create_image(cx, cy, anchor=NW, image=slot.character_image)
+                game_view.Battler.create_image(cx, cy, anchor=NW, image=slot.character_image)
 
                 # hp update
                 slot.hp_string_var.set(slot.unit.hp_for_display())
 
                 # Level update
                 lx, ly = slot.rank_position
-                root.Battler.create_image(lx, ly, anchor=NW, image=slot.rank_image)
+                game_view.Battler.create_image(lx, ly, anchor=NW, image=slot.rank_image)
 
                 global cc
-                var.set(str(cc))
+                coin_strvar.set(str(cc))
 
                 if cc < 10:
                     cc += 1
                 else:
                     cc = 0
 
-            time.sleep(0.1) # 0.1 seconds
+            # Frame per seconds
+            time.sleep(0.1)  # 0.1 seconds
 
 
-def core_loop():
-    from unit import Player
+class CoreThread(threading.Thread):
+    def __init__(self, threadID, name, counter):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.name = name
+        self.counter = counter
 
-    global gm
-    global root
-    global player_control_dict
+    def run(self):
+        self.core_loop()
 
-    for slot in gm.unit_slot:
-        if isinstance(slot.unit, Player):
-            show_player_control()
+    def core_loop(self):
+        from unit import Player
 
-        slot.unit.do(**player_control_dict)
+        global gm
+        global root
+        global player_control_dict
 
-    root.after(0, core_loop)
+        for slot in gm.unit_slot:
+            if isinstance(slot.unit, Player):
+                show_player_control()
+
+            slot.unit.do(**player_control_dict)
 
 
 def init_canvas(canvas, unit_slot):
@@ -113,11 +122,12 @@ def show_player_control():
 
     global root
     global gm
-    top_level = Toplevel()
+
+    top_level = Toplevel(root)
     top_level.title('Player')
-    top_level_x = root.winfo_x() + 640
+    top_level_x = root.winfo_x() + 480
     top_level_y = root.winfo_y()
-    top_level.geometry(f'200x500+{top_level_x}+{top_level_y}')
+    top_level.geometry(f'200x480+{top_level_x}+{top_level_y}')
 
     fontStyle = Font(size=18)
     label1 = Label(top_level, text='Attack', font=fontStyle, justify=CENTER)
@@ -160,129 +170,70 @@ def show_player_control():
     heal_button.pack(fill=X)
 
     top_level.focus_set()
-    top_level.grab_set()
     top_level.wait_window()
 
 
 if __name__ == '__main__':
-    _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
-    _fgcolor = '#000000'  # X11 color: 'black'
-    _compcolor = '#d9d9d9'  # X11 color: 'gray85'
-    _ana1color = '#d9d9d9'  # X11 color: 'gray85'
-    _ana2color = '#ececec'  # Closest X11 color: 'gray92'
-
-    root.geometry("640x480")
+    # window's title
     root.title("PSB Group 9")
-    root.style = ttk.Style()
-    if sys.platform == "win32":
-        root.style.theme_use('winnative')
-    root.style.configure('.', background=_bgcolor)
-    root.style.configure('.', foreground=_fgcolor)
-    root.style.configure('.', font="TkDefaultFont")
-    root.style.map('.', background=
-    [('selected', _compcolor), ('active', _ana2color)])
+    root.resizable(width=FALSE, height=FALSE)
 
-    root.configure(background="#d9d9d9")
-    root.configure(highlightbackground="#d9d9d9")
-    root.configure(highlightcolor="black")
+    # Get 1st monitor's resolution
+    from screeninfo import get_monitors
 
-    menubar = Menu(font="TkMenuFont", bg=_bgcolor, fg=_fgcolor)
-    root.configure(menu=menubar)
+    monitor = get_monitors()[0]
+    center_of_monitor = (monitor.width // 2 - 480, monitor.height // 2 - 240)
+    # Because the window's Anchor is NW, move point as much as window size's half toward NW.
+    root.geometry(f'480x480+{center_of_monitor[0]}+{center_of_monitor[1]}')
+    # widnow's location width x height + north point + west point
 
-    root.Battler = Canvas(root)
-    root.Battler.place(relx=0.281, rely=0.0, relheight=1.0, relwidth=0.719)
-    root.Battler.configure(background="#d9d9d9")
-    root.Battler.configure(borderwidth="2")
-    root.Battler.configure(highlightbackground="#d9d9d9")
-    root.Battler.configure(highlightcolor="black")
-    root.Battler.configure(insertbackground="black")
-    root.Battler.configure(relief="ridge")
-    root.Battler.configure(selectbackground="blue")
-    root.Battler.configure(selectforeground="white")
+    game_view = Frame(root)
+    game_view.Battler = Canvas(game_view, width=480, height=480)
+    game_view.Battler.pack(fill=BOTH)
+    game_view.pack()
 
-    root.Label1 = Label(root)
-    root.Label1.place(relx=0.013, rely=0.013, height=21, width=34)
-    root.Label1.configure(activebackground="#f9f9f9")
-    root.Label1.configure(activeforeground="black")
-    root.Label1.configure(background="#d9d9d9")
-    root.Label1.configure(disabledforeground="#a3a3a3")
-    root.Label1.configure(foreground="#000000")
-    root.Label1.configure(highlightbackground="#d9d9d9")
-    root.Label1.configure(highlightcolor="black")
-    root.Label1.configure(text='''Coin''')
+    event_controller = Toplevel(root)
+    event_controller_x = game_view.winfo_x() - 160
+    event_controller_y = game_view.winfo_y()
+    event_controller.geometry(f'300x480+{(center_of_monitor[0]-300)}+{center_of_monitor[1]}')
+    fontStyle = Font(size=14)
+    event_controller.Label1 = Label(event_controller, font=fontStyle)
+    event_controller.Label1.place(x=10, y=8, height=21, width=50)
+    event_controller.Label1.configure(text='''Coin''')
 
-    root.TSeparator1 = ttk.Separator(root)
-    root.TSeparator1.place(relx=0.0, rely=0.063, relwidth=0.281)
+    # TODO: need to change str to ICON
+    event_controller.Button1 = Button(event_controller, font=fontStyle, command=lambda x: print('1'))
+    event_controller.Button1.place(x=8, y=35, height=32, width=32)
+    event_controller.Button1.configure(pady="0")
+    event_controller.Button1.configure(text='''C''')
 
-    root.Button1 = Button(root, command=lambda x: print('1'))
-    root.Button1.place(relx=0.016, rely=0.083, height=24, width=24)
-    root.Button1.configure(activebackground="#ececec")
-    root.Button1.configure(activeforeground="#000000")
-    root.Button1.configure(background="#d9d9d9")
-    root.Button1.configure(disabledforeground="#a3a3a3")
-    root.Button1.configure(foreground="#000000")
-    root.Button1.configure(highlightbackground="#d9d9d9")
-    root.Button1.configure(highlightcolor="black")
-    root.Button1.configure(pady="0")
-    root.Button1.configure(text='''C''')
+    event_controller.lblCoin = Label(event_controller, textvariable=coin_strvar, font=fontStyle, anchor=E)
+    event_controller.lblCoin.place(x=60, y=39, height=21, width=220)
+    event_controller.lblCoin.configure(text='''314,159''')
 
-    root.lblCoin = Label(root, textvariable=var)
-    root.lblCoin.place(relx=0.066, rely=0.083, height=21, width=124)
-    root.lblCoin.configure(background="#d9d9d9")
-    root.lblCoin.configure(disabledforeground="#a3a3a3")
-    root.lblCoin.configure(foreground="#000000")
-    root.lblCoin.configure(text='''314,159''')
+    event_controller.Label2 = Label(event_controller, font=fontStyle)
+    event_controller.Label2.place(x=8, y=75, height=23, width=164)
+    event_controller.Label2.configure(text='''Game Log''')
 
-    root.TSeparator2 = ttk.Separator(root)
-    root.TSeparator2.place(relx=0.0, rely=0.152, relwidth=0.283)
+    event_controller.txtLogBox = Text(event_controller)
+    event_controller.txtLogBox.place(x=0, rely=0.221, width=300, height=320)
+    event_controller.txtLogBox.configure(wrap="word")
 
-    root.Label2 = Label(root)
-    root.Label2.place(relx=0.013, rely=0.167, height=21, width=164)
-    root.Label2.configure(background="#d9d9d9")
-    root.Label2.configure(disabledforeground="#a3a3a3")
-    root.Label2.configure(foreground="#000000")
-    root.Label2.configure(text='''Game Log''')
+    event_controller.Button2 = Button(event_controller, font=fontStyle)
+    event_controller.Button2.place(x=8, rely=0.919, height=27, width=64)
+    event_controller.Button2.configure(pady="0")
+    event_controller.Button2.configure(text='''Option''')
 
-    root.txtLogBox = Text(root)
-    root.txtLogBox.place(relx=0.0, rely=0.221, relheight=0.623, relwidth=0.284)
-    root.txtLogBox.configure(background="white")
-    root.txtLogBox.configure(font="TkTextFont")
-    root.txtLogBox.configure(foreground="black")
-    root.txtLogBox.configure(highlightbackground="#d9d9d9")
-    root.txtLogBox.configure(highlightcolor="black")
-    root.txtLogBox.configure(insertbackground="black")
-    root.txtLogBox.configure(selectbackground="blue")
-    root.txtLogBox.configure(selectforeground="white")
-    root.txtLogBox.configure(wrap="word")
-
-    root.Button2 = Button(root)
-    root.Button2.place(relx=0.016, rely=0.919, height=27, width=64)
-    root.Button2.configure(activebackground="#ececec")
-    root.Button2.configure(activeforeground="#000000")
-    root.Button2.configure(background="#d9d9d9")
-    root.Button2.configure(disabledforeground="#a3a3a3")
-    root.Button2.configure(foreground="#000000")
-    root.Button2.configure(highlightbackground="#d9d9d9")
-    root.Button2.configure(highlightcolor="black")
-    root.Button2.configure(pady="0")
-    root.Button2.configure(text='''Option''')
-
-    root.Button3 = Button(root)
-    root.Button3.place(relx=0.163, rely=0.919, height=27, width=68)
-    root.Button3.configure(activebackground="#ececec")
-    root.Button3.configure(activeforeground="#000000")
-    root.Button3.configure(background="#d9d9d9")
-    root.Button3.configure(disabledforeground="#a3a3a3")
-    root.Button3.configure(foreground="#000000")
-    root.Button3.configure(highlightbackground="#d9d9d9")
-    root.Button3.configure(highlightcolor="black")
-    root.Button3.configure(pady="0")
-    root.Button3.configure(text='''Restart''')
+    event_controller.Button3 = Button(event_controller, font=fontStyle, command=lambda _: print('hi'))
+    event_controller.Button3.place(x=224, rely=0.919, height=27, width=68)
+    event_controller.Button3.configure(pady="0")
+    event_controller.Button3.configure(text='''Restart''')
 
     # Thread create and start
     gm = GameManager()
-    init_canvas(root.Battler, gm.unit_slot)
+    init_canvas(game_view.Battler, gm.unit_slot)
     display_updater = DisplayUpdateThread(1, 'display_updater', 1)
     display_updater.start()
-    root.after(0, core_loop)
+    core = CoreThread(1, 'core', 1)
+    core.start()
     root.mainloop()
