@@ -11,7 +11,7 @@ class Unit:
         :param ct (CLASS_TYPE): Class Type
         '''
         self.is_dead = False
-        self.heath_point = 100
+        self.heath_point = 100 #TODO: to stay under 100, it is needed to change property
         self.exp = 0
         self.level = 1
         self.character_type = ct
@@ -36,7 +36,7 @@ class Unit:
         total_damage = attack_point - defend_point + randint(-5, 10)
         target.heath_point -= total_damage
 
-        #after attack, calculate exp for both the AI and the user
+        # after attack, calculate exp for both the AI and the user
         self.exp += total_damage  # for attacker exp
 
         #for defender exp
@@ -119,8 +119,6 @@ class Player(Unit):
             'damage': result['damage'], # atk or heal
             'exp': result['exp'],
         }
-
-
 
 
 class AI(Unit):

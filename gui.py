@@ -9,54 +9,9 @@ import threading
 from game_manager import GameManager
 
 # global variables
-cc = 0
 root = Tk()
 coin_strvar = StringVar()
 player_control_dict = {}
-
-
-# It is implemented as a thread to operate independently of any routine.
-# reference by https://www.tutorialspoint.com/python/python_multithreading.htm
-class DisplayUpdateThread(threading.Thread):
-    def __init__(self, threadID, name, counter):
-        threading.Thread.__init__(self)
-        self.threadID = threadID
-        self.name = name
-        self.counter = counter
-
-    def run(self):
-        global gm
-        global game_view
-
-        # bg update
-
-        # slot update
-        while True:
-            unit_slot = gm.unit_slot
-            for slot in unit_slot:
-
-                # Character Image Update
-                cx, cy = slot.character_position
-                game_view.Battler.create_image(cx, cy, anchor=NW, image=slot.character_image)
-
-                # hp update
-                slot.hp_string_var.set(slot.unit.hp_for_display())
-
-                # Level update
-                lx, ly = slot.rank_position
-                game_view.Battler.create_image(lx, ly, anchor=NW, image=slot.rank_image)
-
-            global cc
-            coin_strvar.set(str(cc))
-
-            if cc < 10:
-                cc += 1
-            else:
-                cc = 0
-
-            # Frame per seconds
-            game_view.Battler.update()
-            time.sleep(0.1)  # 0.1 seconds
 
 
 class CoreThread(threading.Thread):
@@ -82,6 +37,8 @@ class CoreThread(threading.Thread):
 
                 result = slot.unit.do(**player_control_dict)
 
+                slot.hp_string_var.set(slot.unit.hp_for_display())
+
                 if result is not None:
                     log(result)
 
@@ -91,6 +48,7 @@ def log(result):
     msg = f'[Game Message]\n {result["name"]} {state} {result["target"]} with damage {result["damage"]}: +{result["exp"]}EXP \n'
     event_controller.txtLogBox.insert('1.0', msg)
     file_log(msg)
+    print(msg)
 
 
 def file_log(msg):
@@ -239,13 +197,30 @@ if __name__ == '__main__':
     event_controller.Button3.configure(pady="0")
     event_controller.Button3.configure(text='''Restart''')
 
-    # Initialize Game
     gm = GameManager()
-    init_canvas(game_view.Battler, gm.unit_slot)
 
-    # Display Update Thread Start
-    display_updater = DisplayUpdateThread(1, 'display_updater', 1)
-    display_updater.start()
+    for slot in gm.unit_slot:
+        hp_label = Label(game_view.Battler, textvariable=slot.hp_string_var)
+        hp_x, hp_y = slot.hp_position
+        game_view.Battler.create_window(hp_x, hp_y, anchor=NW, window=hp_label)
+
+        name_label = Label(game_view.Battler, textvariable=slot.name_string_var)
+        name_x, name_y = slot.name_position
+        game_view.Battler.create_window(name_x, name_y, anchor=NW, window=name_label)
+
+        slot.hp_string_var.set(slot.unit.hp_for_display())
+        slot.name_string_var.set(slot.unit.name)
+
+        # Character Image Update
+        cx, cy = slot.character_position
+        game_view.Battler.create_image(cx, cy, anchor=NW, image=slot.character_image)
+
+        # hp update
+        slot.hp_string_var.set(slot.unit.hp_for_display())
+
+        # Level update
+        lx, ly = slot.rank_position
+        game_view.Battler.create_image(lx, ly, anchor=NW, image=slot.rank_image)
 
     # Core System Thread Start
     core = CoreThread(1, 'core', 1)
