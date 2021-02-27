@@ -50,8 +50,17 @@ class Unit:
             self.exp -= 100
             self.level += 1
 
+        return {
+            'damage': total_damage,
+            'exp': total_damage,
+        }
+
     def heal(self):
         self.heath_point += 15  # assuming the fixed value for healing is 15
+        return {
+            'damage': 15,
+            'exp': 0,
+        }
 
     def choose_target(self):
         ''' Choose Target for Attack. this is Abstract Method. '''
@@ -96,13 +105,20 @@ class Player(Unit):
         print(f'{self.name}\'s Turn.')
         print(kwargs)
 
-        # if kwargs['state'] == 'a':
-        #     target = kwargs['target']
-        #     self.attack(target)
-        # elif kwargs['state'] == 'h':
-        #     self.heal()
+        if kwargs['state'] == 'a':
+            target = kwargs['target']
+            result = self.attack(target)
+        elif kwargs['state'] == 'h':
+            result = self.heal()
 
         self.eval_self()
+        return {
+            'name': self.name,
+            'action': kwargs['state'],
+            'target': target.name if kwargs.get('target') else 'itself',
+            'damage': result['damage'], # atk or heal
+            'exp': result['exp'],
+        }
 
 
 

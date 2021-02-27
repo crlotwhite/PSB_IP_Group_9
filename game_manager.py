@@ -39,4 +39,3 @@ class GameManager:
 
             self.unit_slot.append(self.Slot(c, h, r, n, unit))
             is_user = not is_user
-

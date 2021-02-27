@@ -33,3 +33,5 @@ HP_POSITION_LIST = [
     (33, 452), # Slot5
     (356, 452) # Slot6
 ]
+
+GAME_MESSAGE_POSITION = (240, 240)
