@@ -6,9 +6,9 @@ def choose_state(userMaxAtk, userLowestHp, aiLowestHp):
 
     if aiLowestHp = 100:
         choose = "attack"
-    elif aiLowestHp > 85 and aiLowestHp != 100:
+    elif aiLowestHp > 85:
         chance += 2
-    elif aiLowestHp <= 85 and aiLowestHp > 50:
+    elif aiLowestHp > 50:
         chance += (100 - aiLowestHp)
 
     if aiLowestHp < userMaxAtk:
