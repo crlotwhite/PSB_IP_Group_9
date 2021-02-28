@@ -22,7 +22,7 @@ def choose_state(userMaxAtk, userLowestHp, aiLowestHp):
         chance += userLowestHp
 
 
-    random = randint(1, 130) # the 130 value is the maximum bias level
+    random = randint(1, 130) # the 130 value is the maximum chance value
     if random <= chance:
         choose = "heal"
     else:
