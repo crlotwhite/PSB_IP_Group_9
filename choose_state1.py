@@ -1,29 +1,29 @@
 from random import randint
 
 def choose_state(userMaxAtk, userLowestHp, aiLowestHp):
-    bias = 0 # the higher the bias value, the higher chance to heal
+    chance = 0 # the higher the chance value, the higher chance to heal
     choose = ""
 
     if aiLowestHp = 100:
         choose = "attack"
-    elif aiLowestHp > (100 - 15) and aiLowestHp != 100:
-        bias += 2
-    elif aiLowestHp <= (100 - 15) and aiLowestHp > 50:
-        bias += (100 - aiLowestHp)
+    elif aiLowestHp > 85 and aiLowestHp != 100:
+        chance += 2
+    elif aiLowestHp <= 85 and aiLowestHp > 50:
+        chance += (100 - aiLowestHp)
 
     if aiLowestHp < userMaxAtk:
-        bias += 25
+        chance += 25
     elif aiLowestHp == userMaxAtk:
-        bias += 15
+        chance += 15
     elif aiLowestHp > userMaxAtk:
-        bias += 5
+        chance += 5
 
     if userLowestHp >= 20:
-        bias += userLowestHp
+        chance += userLowestHp
 
 
     random = randint(1, 130) # the 130 value is the maximum bias level
-    if random <= bias:
+    if random <= chance:
         choose = "heal"
     else:
         choose = "attack"
