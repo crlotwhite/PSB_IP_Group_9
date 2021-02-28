@@ -137,10 +137,13 @@ class AI(Unit):
     def choose_target(self):
         '''choose the lowest health point from the user's characters'''
         minHealth = 100
+        i = 0
+        index = 0
         for health in playerHealth:  # playerHealth is a list for the player's characters' health
-            if minHealth > health:
+            if minHealth > health and health != 0:
                 minHealth = health
-
+                index = i
+            i += 1
 
 
 
