@@ -81,7 +81,7 @@ class Unit:
             # character_state = dead
             self.is_dead
 
-        # 랭크 변화 이미지 변경
+        # 랭크 변화 이미지 변경 , rank change image change
 
 
 class Player(Unit):
