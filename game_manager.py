@@ -9,7 +9,7 @@ from image_positions import *
 
 class GameManager:
     class Slot:
-        def __init__(self, c, h, r, n, u):
+        def __init__(self, c, h, r, n, u): #setting up the positions
             self.character_position = c
             self.hp_position = h
             self.rank_position = r
@@ -28,7 +28,7 @@ class GameManager:
     def __init__(self):
         self.unit_slot = []
 
-        character_types_list = list(map(lambda x: x[1], CharacterTypes.choices()))
+        character_types_list = list(map(lambda x: x[1], CharacterTypes.choices())) #initializing map and choosing the character
         is_user = True
         for c, h, r, n in zip(CHARACTER_POSITION_LIST, HP_POSITION_LIST, RANK_POSITION_LIST, NAME_POSITION_LIST):
             character_type = choice(character_types_list)
