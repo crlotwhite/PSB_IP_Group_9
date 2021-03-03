@@ -24,29 +24,44 @@ class Unit:
 
     @health_point.setter
     def health_point(self, health_point):
-        if self._health_point + health_point <= 100:
+        # if total health point is over 100, do not any thing
+        # or not if hp is under 0, just input 0
+        if 100 >= health_point > 0:
             self._health_point = health_point
+        elif health_point < 0:
+            self._health_point = 0
 
     def hp_for_display(self):
+        # make formatted str
         return f'HP: {self.health_point}/100'
 
     def attack(self, target):
         '''randomize integer for atk, and deducting hp from target'''
-        if self.character_type == CharacterTypes.warrior:
-            attack_point = randint(5, 20)
-        elif self.character_type == CharacterTypes.tanker:
-            attack_point = randint(1, 10)
 
-        if target.character_type == CharacterTypes.tanker:
+        # random attack point depending on class type.
+        if self.character_type == CharacterTypes.warrior.value:
+            attack_point = randint(5, 20)
+        elif self.character_type == CharacterTypes.tanker.value:
+            attack_point = randint(1, 10)
+        else:
+            pass
+
+        # random defend point depending on class type.
+        if target.character_type == CharacterTypes.tanker.value:
             defend_point = randint(5, 15)
-        elif target.character_type == CharacterTypes.warrior:
+        elif target.character_type == CharacterTypes.warrior.value:
             defend_point = randint(1, 10)
 
+        # calculate total damage.
         total_damage = attack_point - defend_point + randint(-5, 10)
-        target.health_point -= total_damage
+
+        # if total damage is negative, do not any thing.
+        if total_damage > 0:
+            target.health_point = target.health_point - total_damage
 
         # after attack, calculate exp for both the AI and the user
-        self.exp += total_damage  # for attacker exp
+        if total_damage > 0:
+            self.exp += total_damage  # for attacker exp
 
         # for defender exp
         if total_damage > 10:
@@ -59,21 +74,29 @@ class Unit:
             self.exp -= 100
             self.level += 1
 
-        return {
-            'damage': total_damage,
-            'exp': total_damage,
-        }
+        while (target.exp // 100) > 0:
+            target.exp -= 100
+            target.level += 1
+
+        # return message
+        if total_damage > 0:
+            return {
+                'damage': total_damage,
+                'exp': total_damage,
+            }
+        else:
+            return {
+                'damage': 0,
+                'exp': 0,
+            }
 
     def heal(self):
-        self.health_point += 15  # assuming the fixed value for healing is 15
+        # assuming the fixed value for healing is 15
+        self.health_point = self.health_point + 15
         return {
             'damage': 15,
             'exp': 0,
         }
-
-    def choose_target(self):
-        ''' Choose Target for Attack. this is Abstract Method. '''
-        pass
 
     def do(self, *args, **kwargs):
         '''
@@ -87,10 +110,8 @@ class Unit:
         proceed unit's dead.
         '''
         if self.health_point <= 0:
-            # character_state = dead
-            self.is_dead
-
-
+            # character is dead
+            self.is_dead = True
 
 
 class Player(Unit):
@@ -120,21 +141,20 @@ class Player(Unit):
                 'exp': 'RIP',
             }
 
-        else:
-            if kwargs['state'] == 'a':
-                target = kwargs['target']
-                result = self.attack(target)
-            elif kwargs['state'] == 'h':
-                result = self.heal()
+        if kwargs['state'] == 'a':
+            target = kwargs['target']
+            result = self.attack(target)
+        elif kwargs['state'] == 'h':
+            result = self.heal()
 
-            self.eval_self()
-            return {
-                'name': self.name,
-                'action': kwargs['state'],
-                'target': target.name if kwargs.get('target') else 'itself',
-                'damage': result['damage'], # atk or heal
-                'exp': result['exp'],
-            }
+        self.eval_self()
+        return {
+            'name': self.name,
+            'action': kwargs['state'],
+            'target': target.name if kwargs.get('target') else 'itself',
+            'damage': result['damage'], # atk or heal
+            'exp': result['exp'],
+        }
 
 
 class AI(Unit):
@@ -143,12 +163,18 @@ class AI(Unit):
         self.manager = None
         super().__init__(ct)
 
-
-        print(f'AI {self.name} is here')
-
-
     def do(self, *args, **kwargs):
         print(f'{self.name}\'s Turn.')
+        if self.is_dead:
+            return {
+                'name': self.name,
+                'action': kwargs['state'],
+                'target': '',
+                'damage': '',  # atk or heal
+                'exp': 'RIP',
+            }
+
+        self.eval_self()
 
     def choose_target(self):
         '''choose the lowest health point from the user's characters'''

@@ -13,17 +13,19 @@ class GameManager:
             '''
             It stores the image and output coordinate information of each slot unit.
 
-            :param c: character_position
-            :param h: hp_position
-            :param r: rank_position
-            :param n: name_position
-            :param u: unit
+            :param c: (Tuple[int, int]) character_position
+            :param h: (Tuple[int, int]) hp_position
+            :param r: (Tuple[int, int]) rank_position
+            :param n: (Tuple[int, int]) name_position
+            :param u: (Union[Player, AI]) unit
             '''
             self.character_position = c
             self.hp_position = h
             self.rank_position = r
             self.name_position = n
             self.unit = u
+
+            # Creates a PhotoImage object based on the specified file name.
             self.character_image = PhotoImage(file='./resources/{}.png'.format(u.character_type))
             self.rank_image = PhotoImage(file='./resources/Rank{}.png'.format(u.level))
 
@@ -32,14 +34,16 @@ class GameManager:
             self.name_string_var = StringVar()
 
         def update_level_image(self):
+            # update rank image
             self.rank_image = PhotoImage(file='./resources/Rank{}.png'.format(self.unit.level))
 
     def __init__(self):
         self.unit_slot = []
+        self.player_slot = []
+        self.ai_slot = []
 
-        # Returns the properties of an enumeration and the values of those properties as a tuple.
-        # Among them, the contents of 'value' are made into a list and stored.
-        character_types_list = list(map(lambda x: x[1], CharacterTypes.choices()))
+        # Save it as a variable to avoid unnecessary method execution.
+        character_types_list = CharacterTypes.make_list()
 
         # It is used to select the player and the AI in order.
         is_user = True
@@ -52,8 +56,16 @@ class GameManager:
 
             if is_user:
                 unit = Player(character_type)
+                self.player_slot.append(unit)
             else:
                 unit = AI(character_type)
+                self.ai_slot.append(unit)
 
             self.unit_slot.append(self.Slot(c, h, r, n, unit))
             is_user = not is_user
+
+    def is_player_win(self):
+        return not any(filter(lambda unit: not unit.is_dead, self.ai_slot))
+
+    def is_ai_win(self):
+        return not any(filter(lambda unit: not unit.is_dead, self.player_slot))

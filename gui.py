@@ -13,38 +13,69 @@ coin_strvar = StringVar()
 player_control_dict = {}
 
 
+# This Thread runs the turn-based system independently of the GUI routine.
 class CoreThread(threading.Thread):
     def __init__(self, threadID, name, counter):
+        # Just for Thread object
         threading.Thread.__init__(self)
         self.threadID = threadID
         self.name = name
         self.counter = counter
 
     def run(self):
+        # Thread main routine.
         self.core_loop()
 
     def core_loop(self):
+        # Turn-base system's core loop
         from unit import Player
 
+        # global variables
         global gm
-        global root
+        global game_view
         global player_control_dict
+
+        # never-end loop
         while True:
+            # if game finish thread loop is stopped.
+            if gm.is_player_win():
+                fontStyle = Font(size=18)
+                result_label = Label(game_view.Battler, text="You Win!", font=fontStyle)
+                game_view.Battler.create_window(240, 240, anchor=CENTER, window=result_label)
+                break
+            elif gm.is_ai_win():
+                fontStyle = Font(size=18)
+                result_label = Label(game_view.Battler, text="You Lose...", font=fontStyle)
+                game_view.Battler.create_window(240, 240, anchor=CENTER, window=result_label)
+                break
+
+            # if for-statements is ended, a turn is gone.
             for slot in gm.unit_slot:
+                # is Player class' instance?
                 if isinstance(slot.unit, Player):
+                    # Show GUI for player
                     show_player_control()
 
+                # Run Unit's action
                 result = slot.unit.do(**player_control_dict)
 
+                # Update displayed HP.
                 slot.hp_string_var.set(slot.unit.hp_for_display())
 
+                # is there message from Unit.do()
                 if result is not None:
+                    # logging on text box ui.
                     log(result)
 
+                # if change level, update image.
+                # but this routine is always run.
+                rank_x, rank_y = slot.rank_position
                 slot.update_level_image()
+                game_view.Battler.create_image(rank_x, rank_y, anchor=NW, image=slot.rank_image)
 
 
 def log(result):
+    # make verb
     if result['action'] == 'a':
         state = 'attacked'
     elif result['action'] == 'h':
@@ -52,19 +83,24 @@ def log(result):
     elif result['action'] == 'd':
         state = 'is dead.'
     else:
+        # if it has unexpected exception
         state = result['a']
 
+    # formatted message
     msg = f'[Game Message]\n {result["name"]} {state} {result["target"]} with damage {result["damage"]}: +{result["exp"]}EXP \n'
+    # update on GUI
     event_controller.txtLogBox.insert('1.0', msg)
+    # write on file.
     file_log(msg)
-    print(msg)
 
 
 def file_log(msg):
+    # write msg on file directly
     from datetime import datetime
 
     with open('log.txt', 'a') as f:
-        now_str = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+        # formatted datetime like '3 mar 21 => 03/02/2021 21:30:01
+        now_str = datetime.now().strftime("%d/%m/%Y, %H:%M:%S")
         msg = '[{}] {}\n'.format(now_str, msg.replace('\n', ''))
         f.write(msg)
 
@@ -72,27 +108,32 @@ def file_log(msg):
 def init_canvas(canvas, unit_slot):
     ''' First, Static Data are Created on Canvas Object'''
     for slot in unit_slot:
+        # make hp label
         hp_label = Label(canvas, textvariable=slot.hp_string_var)
         hp_x, hp_y = slot.hp_position
         canvas.create_window(hp_x, hp_y, anchor=NW, window=hp_label)
 
+        # make name label
         name_label = Label(canvas, textvariable=slot.name_string_var)
         name_x, name_y = slot.name_position
         canvas.create_window(name_x, name_y, anchor=NW, window=name_label)
 
+        # update string vars
         slot.hp_string_var.set(slot.unit.hp_for_display())
         slot.name_string_var.set(slot.unit.name)
 
 
 def show_player_control():
     def attack_command():
+        # a callback function for attack button
         global player_control_dict
         nonlocal top_level
 
-        player_control_dict.update({'state': 'a', 'target': gm.unit_slot[int(target_str_var)]})
+        player_control_dict.update({'state': 'a', 'target': gm.unit_slot[int(target_str_var.get())].unit})
         top_level.destroy()
 
     def heal_command():
+        # a callback function for heal button
         global player_control_dict
         nonlocal top_level
 
@@ -104,6 +145,7 @@ def show_player_control():
     global root
     global gm
 
+    # make new GUI
     top_level = Toplevel(root)
     top_level.title('Player')
     top_level_x = root.winfo_x() + 480
