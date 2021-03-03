@@ -51,6 +51,10 @@ class CoreThread(threading.Thread):
 
             # if for-statements is ended, a turn is gone.
             for slot in gm.unit_slot:
+                # if the unit is dead, its turn skip.
+                if slot.unit.is_dead:
+                    continue
+
                 # is Player class' instance?
                 if isinstance(slot.unit, Player):
                     # Show GUI for player
@@ -156,6 +160,7 @@ def show_player_control():
     label1 = Label(top_level, text='Attack', font=fontStyle, justify=CENTER)
     label1.pack(fill='x')
 
+    # create target button
     slot_names = [str(x) for x in range(6)]
     target_str_var = StringVar(top_level, '1')
     for slot, slot_name in zip(gm.unit_slot, slot_names):

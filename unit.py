@@ -132,15 +132,6 @@ class Player(Unit):
         self.name = name
 
     def do(self, *args, **kwargs):
-        if self.is_dead:
-            return {
-                'name': self.name,
-                'action': kwargs['state'],
-                'target': '',
-                'damage': '', # atk or heal
-                'exp': 'RIP',
-            }
-
         if kwargs['state'] == 'a':
             target = kwargs['target']
             result = self.attack(target)
@@ -165,14 +156,6 @@ class AI(Unit):
 
     def do(self, *args, **kwargs):
         print(f'{self.name}\'s Turn.')
-        if self.is_dead:
-            return {
-                'name': self.name,
-                'action': kwargs['state'],
-                'target': '',
-                'damage': '',  # atk or heal
-                'exp': 'RIP',
-            }
 
         self.eval_self()
 
