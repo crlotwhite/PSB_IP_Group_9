@@ -182,7 +182,11 @@ class AI(Unit):
         while target is None:
             target = self.choose_target(kwargs['player_list'], kwargs['previous_target'])
 
+        # logging
+        file_log(f'{self.name} choose target {target.name}')
+
         state = self.choose_state(kwargs['player_list'], target.health_point)
+        file_log(f'{self.name} choose state {state} signal')
         if state == 'a':
             result = self.attack(target)
         elif state == 'h':
@@ -262,20 +266,28 @@ class AI(Unit):
         :param call_stack: (int) Avoid recursive infinite loops
         :return:
         '''
+        # The selection is based on a living player unit.
         living_player_list = list(filter(lambda p: not p.is_dead, player_list))
         weak_player = living_player_list[0]
 
         for player in living_player_list:
             if 30 < abs(player.health_point - weak_player.health_point) < 60:
+                # Attempts to attack users with moderate stamina with priority.
+                # This logic is applied with a 2/3 probability.
                 if randint(1, 3) == 3:
                     weak_player = player
             elif player.health_point < weak_player.health_point:
+                # Weakest user
                 weak_player = player
             elif player.health_point == weak_player.health_point:
+                # When the health is the same, the warrior with weak defense is attacked first.
                 if player.character_type == CharacterTypes.warrior.value:
                     weak_player = player
 
+        # If there is no previously selected user, the logic is ignored.
         if previous_target is not None and weak_player == previous_target:
+            # In the case of the previously selected user, it is selected again with a 2/3 probability.
+            # Limit the call stack to 3 to avoid the possibility of infinite recursion.
             if randint(1, 3) != 3 and call_stack < 3:
                 self.choose_target(player_list, call_stack + 1)
             else:
