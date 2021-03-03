@@ -9,7 +9,16 @@ from image_positions import *
 
 class GameManager:
     class Slot:
-        def __init__(self, c, h, r, n, u): #setting up the positions
+        def __init__(self, c, h, r, n, u):
+            '''
+            It stores the image and output coordinate information of each slot unit.
+
+            :param c: character_position
+            :param h: hp_position
+            :param r: rank_position
+            :param n: name_position
+            :param u: unit
+            '''
             self.character_position = c
             self.hp_position = h
             self.rank_position = r
@@ -23,15 +32,24 @@ class GameManager:
             self.name_string_var = StringVar()
 
         def update_level_image(self):
-            self.rank_image = PhotoImage(file='./Rank{}.png'.format(self.unit.level))
+            self.rank_image = PhotoImage(file='./resources/Rank{}.png'.format(self.unit.level))
 
     def __init__(self):
         self.unit_slot = []
 
-        character_types_list = list(map(lambda x: x[1], CharacterTypes.choices())) #initializing map and choosing the character
+        # Returns the properties of an enumeration and the values of those properties as a tuple.
+        # Among them, the contents of 'value' are made into a list and stored.
+        character_types_list = list(map(lambda x: x[1], CharacterTypes.choices()))
+
+        # It is used to select the player and the AI in order.
         is_user = True
+
+        # Multiple lists of values are stored in a specified order and processed at once.
+        # This is the data needed to create an object.
         for c, h, r, n in zip(CHARACTER_POSITION_LIST, HP_POSITION_LIST, RANK_POSITION_LIST, NAME_POSITION_LIST):
+            # Select a class randomly.
             character_type = choice(character_types_list)
+
             if is_user:
                 unit = Player(character_type)
             else:

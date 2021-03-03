@@ -3,7 +3,6 @@
 from tkinter.font import Font
 from tkinter import *
 
-import time
 import threading
 
 from game_manager import GameManager
@@ -42,9 +41,19 @@ class CoreThread(threading.Thread):
                 if result is not None:
                     log(result)
 
+                slot.update_level_image()
+
 
 def log(result):
-    state = 'attacked' if result['action'] == 'a' else 'heal'
+    if result['action'] == 'a':
+        state = 'attacked'
+    elif result['action'] == 'h':
+        state = 'heal'
+    elif result['action'] == 'd':
+        state = 'is dead.'
+    else:
+        state = result['a']
+
     msg = f'[Game Message]\n {result["name"]} {state} {result["target"]} with damage {result["damage"]}: +{result["exp"]}EXP \n'
     event_controller.txtLogBox.insert('1.0', msg)
     file_log(msg)
@@ -52,7 +61,11 @@ def log(result):
 
 
 def file_log(msg):
+    from datetime import datetime
+
     with open('log.txt', 'a') as f:
+        now_str = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+        msg = '[{}] {}\n'.format(now_str, msg.replace('\n', ''))
         f.write(msg)
 
 
@@ -130,7 +143,7 @@ def show_player_control():
 
     heal_button = Button(
         top_level,
-        text='Do Attack',
+        text='Do Heal',
         command=heal_command,
         font=fontStyle,
         justify=CENTER
@@ -208,6 +221,7 @@ if __name__ == '__main__':
         name_x, name_y = slot.name_position
         game_view.Battler.create_window(name_x, name_y, anchor=NW, window=name_label)
 
+        # label's string var initialize.
         slot.hp_string_var.set(slot.unit.hp_for_display())
         slot.name_string_var.set(slot.unit.name)
 

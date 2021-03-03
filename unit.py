@@ -11,15 +11,24 @@ class Unit:
         :param ct (CLASS_TYPE): Class Type
         '''
         self.is_dead = False
-        self.heath_point = 100 #TODO: to stay under 100, it is needed to change property
+        self._health_point = 100
         self.exp = 0
         self.level = 1
         self.character_type = ct
 
-        print(f'Unit {id(self)} is here')
+    # Constrains the hp to not exceed 100.
+    # implemented getters just in case.
+    @property
+    def health_point(self):
+        return self._health_point
+
+    @health_point.setter
+    def health_point(self, health_point):
+        if self._health_point + health_point <= 100:
+            self._health_point = health_point
 
     def hp_for_display(self):
-        return f'HP: {self.heath_point}/100'
+        return f'HP: {self.health_point}/100'
 
     def attack(self, target):
         '''randomize integer for atk, and deducting hp from target'''
@@ -34,12 +43,12 @@ class Unit:
             defend_point = randint(1, 10)
 
         total_damage = attack_point - defend_point + randint(-5, 10)
-        target.heath_point -= total_damage
+        target.health_point -= total_damage
 
         # after attack, calculate exp for both the AI and the user
         self.exp += total_damage  # for attacker exp
 
-        #for defender exp
+        # for defender exp
         if total_damage > 10:
             target.exp += (defend_point * 1.2)
         elif total_damage <= 0:
@@ -56,7 +65,7 @@ class Unit:
         }
 
     def heal(self):
-        self.heath_point += 15  # assuming the fixed value for healing is 15
+        self.health_point += 15  # assuming the fixed value for healing is 15
         return {
             'damage': 15,
             'exp': 0,
@@ -77,11 +86,11 @@ class Unit:
         '''
         proceed unit's dead.
         '''
-        if self.heath_point <= 0:
+        if self.health_point <= 0:
             # character_state = dead
             self.is_dead
 
-        # 랭크 변화 이미지 변경 , rank change image change
+
 
 
 class Player(Unit):
@@ -102,23 +111,30 @@ class Player(Unit):
         self.name = name
 
     def do(self, *args, **kwargs):
-        print(f'{self.name}\'s Turn.')
-        print(kwargs)
+        if self.is_dead:
+            return {
+                'name': self.name,
+                'action': kwargs['state'],
+                'target': '',
+                'damage': '', # atk or heal
+                'exp': 'RIP',
+            }
 
-        if kwargs['state'] == 'a':
-            target = kwargs['target']
-            result = self.attack(target)
-        elif kwargs['state'] == 'h':
-            result = self.heal()
+        else:
+            if kwargs['state'] == 'a':
+                target = kwargs['target']
+                result = self.attack(target)
+            elif kwargs['state'] == 'h':
+                result = self.heal()
 
-        self.eval_self()
-        return {
-            'name': self.name,
-            'action': kwargs['state'],
-            'target': target.name if kwargs.get('target') else 'itself',
-            'damage': result['damage'], # atk or heal
-            'exp': result['exp'],
-        }
+            self.eval_self()
+            return {
+                'name': self.name,
+                'action': kwargs['state'],
+                'target': target.name if kwargs.get('target') else 'itself',
+                'damage': result['damage'], # atk or heal
+                'exp': result['exp'],
+            }
 
 
 class AI(Unit):

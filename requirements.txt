@@ -1,1 +1,4 @@
 pygame==2.0.1
+
+screeninfo~=0.6.7
+choicesenum~=0.7.0

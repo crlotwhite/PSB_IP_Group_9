@@ -1,10 +1,11 @@
 from random import randint
 
+
 def choose_state(userMaxAtk, userLowestHp, aiLowestHp):
     chance = 0 # the higher the chance value, the higher chance to heal
     choose = ""
 
-    if aiLowestHp = 100:
+    if aiLowestHp == 100:
         choose = "attack"
     elif aiLowestHp > 85:
         chance += 2
