@@ -42,15 +42,25 @@ class CoreThread(threading.Thread):
                 fontStyle = Font(size=18)
                 result_label = Label(game_view.Battler, text="You Win!", font=fontStyle)
                 game_view.Battler.create_window(240, 240, anchor=CENTER, window=result_label)
+
+                # game finish log
+                file_log('Game finish. Player win.')
                 break
+
             elif gm.is_ai_win():
                 fontStyle = Font(size=18)
                 result_label = Label(game_view.Battler, text="You Lose...", font=fontStyle)
                 game_view.Battler.create_window(240, 240, anchor=CENTER, window=result_label)
+
+                # game finish log
+                file_log('Game finish. Player Lose.')
                 break
 
             # if for-statements is ended, a turn is gone.
             for slot in gm.unit_slot:
+                # turn start
+                file_log(f'{slot.unit.name}\'s turn start')
+
                 # if the unit is dead, its turn skip.
                 if slot.unit.is_dead:
                     continue
@@ -76,6 +86,9 @@ class CoreThread(threading.Thread):
                 rank_x, rank_y = slot.rank_position
                 slot.update_level_image()
                 game_view.Battler.create_image(rank_x, rank_y, anchor=NW, image=slot.rank_image)
+
+                # turn end log
+                file_log(f'{slot.unit.name}\'s turn start')
 
 
 def log(result):
@@ -109,30 +122,14 @@ def file_log(msg):
         f.write(msg)
 
 
-def init_canvas(canvas, unit_slot):
-    ''' First, Static Data are Created on Canvas Object'''
-    for slot in unit_slot:
-        # make hp label
-        hp_label = Label(canvas, textvariable=slot.hp_string_var)
-        hp_x, hp_y = slot.hp_position
-        canvas.create_window(hp_x, hp_y, anchor=NW, window=hp_label)
-
-        # make name label
-        name_label = Label(canvas, textvariable=slot.name_string_var)
-        name_x, name_y = slot.name_position
-        canvas.create_window(name_x, name_y, anchor=NW, window=name_label)
-
-        # update string vars
-        slot.hp_string_var.set(slot.unit.hp_for_display())
-        slot.name_string_var.set(slot.unit.name)
-
-
 def show_player_control():
     def attack_command():
         # a callback function for attack button
         global player_control_dict
         nonlocal top_level
 
+        # button log
+        file_log('send attack signal')
         player_control_dict.update({'state': 'a', 'target': gm.unit_slot[int(target_str_var.get())].unit})
         top_level.destroy()
 
@@ -141,6 +138,8 @@ def show_player_control():
         global player_control_dict
         nonlocal top_level
 
+        # button log
+        file_log('send heal signal')
         player_control_dict.update({'state': 'h', 'target': None})
         top_level.destroy()
 
@@ -197,11 +196,17 @@ def show_player_control():
     )
     heal_button.pack(fill=X)
 
+    # toplevel is opened log
+    file_log('Player UI open')
+
     top_level.focus_set()
     top_level.wait_window()
 
 
 if __name__ == '__main__':
+    # start log
+    file_log('game start')
+
     # window's title
     root.title("PSB Group 9")
     root.resizable(width=FALSE, height=FALSE)
@@ -257,9 +262,20 @@ if __name__ == '__main__':
     event_controller.Button3.configure(pady="0")
     event_controller.Button3.configure(text='''Restart''')
 
+    # component loaded log
+    file_log('All gui components are loaded completely')
+
     gm = GameManager()
 
+    # Background Image Update
+    background = PhotoImage(file='./resources/bg.png')
+    game_view.Battler.create_image(0, 0, anchor=NW, image=background)
+
     for slot in gm.unit_slot:
+        # unit slot logginh
+        file_log(f'{slot.unit.name}\'s slot is displaying')
+
+        # create hp, name labels
         hp_label = Label(game_view.Battler, textvariable=slot.hp_string_var)
         hp_x, hp_y = slot.hp_position
         game_view.Battler.create_window(hp_x, hp_y, anchor=NW, window=hp_label)
@@ -283,8 +299,12 @@ if __name__ == '__main__':
         lx, ly = slot.rank_position
         game_view.Battler.create_image(lx, ly, anchor=NW, image=slot.rank_image)
 
+    # finish initialize log
+    file_log('All slots are ready')
+
     # Core System Thread Start
     core = CoreThread(1, 'core', 1)
     core.start()
+    file_log('Core routine started')
 
     root.mainloop()

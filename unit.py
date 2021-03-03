@@ -1,6 +1,6 @@
 from random import randint
 from character_types import CharacterTypes
-
+from gui import file_log
 
 class Unit:
     def __init__(self, ct):
@@ -13,7 +13,7 @@ class Unit:
         self.is_dead = False
         self._health_point = 100
         self.exp = 0
-        self.level = 1
+        self._level = 1
         self.character_type = ct
 
     # Constrains the hp to not exceed 100.
@@ -31,6 +31,16 @@ class Unit:
         elif health_point < 0:
             self._health_point = 0
 
+    @property
+    def level(self):
+        return self._level
+
+    @level.setter
+    def level(self, level):
+        # do not level up more than 10.
+        if level <= 10:
+            self._level = level
+
     def hp_for_display(self):
         # make formatted str
         return f'HP: {self.health_point}/100'
@@ -43,8 +53,6 @@ class Unit:
             attack_point = randint(5, 20)
         elif self.character_type == CharacterTypes.tanker.value:
             attack_point = randint(1, 10)
-        else:
-            pass
 
         # random defend point depending on class type.
         if target.character_type == CharacterTypes.tanker.value:
@@ -61,7 +69,7 @@ class Unit:
 
         # after attack, calculate exp for both the AI and the user
         if total_damage > 0:
-            self.exp += total_damage  # for attacker exp
+            self.exp = self.exp + (total_damage * 10)  # for attacker exp
 
         # for defender exp
         if total_damage > 10:
@@ -72,11 +80,11 @@ class Unit:
         # proceed level
         while (self.exp // 100) > 0:
             self.exp -= 100
-            self.level += 1
+            self.level = self.level + 1
 
         while (target.exp // 100) > 0:
             target.exp -= 100
-            target.level += 1
+            target.level = target.level + 1
 
         # return message
         if total_damage > 0:
@@ -120,7 +128,7 @@ class Player(Unit):
         self.set_name()
         super().__init__(ct)
 
-        print(f'Player {self.name} is here')
+        file_log(f'Player {self.name} is created')
 
     def set_name(self):
         '''
