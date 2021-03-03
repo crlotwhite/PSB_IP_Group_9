@@ -1,6 +1,7 @@
 from random import randint
 from character_types import CharacterTypes
-from gui import file_log
+from log_util import file_log
+
 
 class Unit:
     def __init__(self, ct):
@@ -140,6 +141,14 @@ class Player(Unit):
         self.name = name
 
     def do(self, *args, **kwargs):
+        '''
+        The main interface of the player object
+
+        :param kwargs: ['target'] Target of attack,
+                        ['state'] Chosen action
+        :return: (Dict[str, any]) Data for logging
+        '''
+
         if kwargs['state'] == 'a':
             target = kwargs['target']
             result = self.attack(target)
@@ -159,24 +168,99 @@ class Player(Unit):
 class AI(Unit):
     def __init__(self, ct):
         self.name = 'AI' + str(randint(10, 99))
-        self.manager = None
         super().__init__(ct)
 
     def do(self, *args, **kwargs):
-        print(f'{self.name}\'s Turn.')
+        '''
+        :param kwargs: ['player_list']
+        :return:
+        '''
+        target = AI.lowest_hp_player(kwargs['player_list'])
+        state = self.choose_state(kwargs['player_list'], target.health_point)
+        if state == 'a':
+            result = self.attack(target)
+        elif state == 'h':
+            result = self.heal()
 
         self.eval_self()
+        return {
+            'name': self.name,
+            'action': state,
+            'target': target.name if state == 'a' else 'itself',
+            'damage': result['damage'],  # atk or heal
+            'exp': result['exp'],
+        }
 
-    def choose_target(self):
-        '''choose the lowest health point from the user's characters'''
-        minHealth = 100
-        i = 0
-        index = 0
-        for health in playerHealth:  # playerHealth is a list for the player's characters' health
-            if minHealth > health and health != 0:
-                minHealth = health
-                index = i
-            i += 1
+    def choose_state(self, player_list, lowest_player_hp):
+        '''
+        Choose the action of the AI.
+
+        :param player_list: (List[Player]) Player list
+        :param lowest_player_hp: (Player) The weakest player's health
+        :return: (str)
+            a signal is attack
+            h signal is heal
+        '''
+
+        # Weight for power recovery
+        weight = 0
+
+        if self.health_point == 100:
+            # No need to recover stamina
+            return 'a'
+        elif self.health_point > 85:
+            weight += 2
+        elif self.health_point > 50:
+            weight += (100 - self.health_point)
+
+        ct_ratio = AI.player_class_type_ratio(player_list)
+        if self.health_point < ct_ratio:
+            weight += 25
+        elif self.health_point == ct_ratio:
+            weight += 15
+        elif self.health_point > ct_ratio:
+            weight += 5
+
+        if lowest_player_hp >= 20:
+            weight += lowest_player_hp
+
+        # create random value
+        random = randint(1, 130)  # the 130 value is the maximum chance value
+        if random <= weight:
+            return 'h'
+        else:
+            return 'a'
+
+    @staticmethod
+    def player_class_type_ratio(player_list):
+        '''Measures the average maximum attack power for each class.'''
+        result = 0
+        for player in player_list:
+            if player.is_dead:
+                continue
+
+            if player.character_type == CharacterTypes.warrior.value:
+                result += 20
+            elif player.character_type == CharacterTypes.tanker.value:
+                result += 10
+
+        return result // 3
+
+    @staticmethod
+    def lowest_hp_player(player_list):
+        weak_player = player_list[0]
+
+        for player in player_list:
+            if 5 < abs(player.health_point - weak_player.health_point) < 10:
+                if randint(1, 4) == 3:
+                    weak_player = player
+            elif player.health_point < weak_player.health_point:
+                weak_player = player
+            elif player.health_point == weak_player.health_point:
+                if player.character_type == CharacterTypes.warrior.value:
+                    weak_player = player
+
+        return weak_player
 
 
 

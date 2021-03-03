@@ -8,6 +8,8 @@ import threading
 from game_manager import GameManager
 
 # global variables
+from log_util import file_log
+
 root = Tk()
 coin_strvar = StringVar()
 player_control_dict = {}
@@ -69,9 +71,9 @@ class CoreThread(threading.Thread):
                 if isinstance(slot.unit, Player):
                     # Show GUI for player
                     show_player_control()
-
-                # Run Unit's action
-                result = slot.unit.do(**player_control_dict)
+                    result = slot.unit.do(**player_control_dict)
+                else:
+                    result = slot.unit.do(**{'player_list': gm.player_slot})
 
                 # Update displayed HP.
                 slot.hp_string_var.set(slot.unit.hp_for_display())
@@ -109,17 +111,6 @@ def log(result):
     event_controller.txtLogBox.insert('1.0', msg)
     # write on file.
     file_log(msg)
-
-
-def file_log(msg):
-    # write msg on file directly
-    from datetime import datetime
-
-    with open('log.txt', 'a') as f:
-        # formatted datetime like '3 mar 21 => 03/02/2021 21:30:01
-        now_str = datetime.now().strftime("%d/%m/%Y, %H:%M:%S")
-        msg = '[{}] {}\n'.format(now_str, msg.replace('\n', ''))
-        f.write(msg)
 
 
 def show_player_control():

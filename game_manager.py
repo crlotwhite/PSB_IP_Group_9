@@ -65,7 +65,9 @@ class GameManager:
             is_user = not is_user
 
     def is_player_win(self):
+        # True if the list of non-dead players is empty.
         return not any(filter(lambda unit: not unit.is_dead, self.ai_slot))
 
     def is_ai_win(self):
+        # True if the list of non-dead AIs is empty.
         return not any(filter(lambda unit: not unit.is_dead, self.player_slot))
