@@ -168,14 +168,20 @@ class Player(Unit):
 class AI(Unit):
     def __init__(self, ct):
         self.name = 'AI' + str(randint(10, 99))
+        self.previous_target = None
         super().__init__(ct)
 
     def do(self, *args, **kwargs):
         '''
-        :param kwargs: ['player_list']
+        :param kwargs: ['player_list'] ['previous_target']
         :return:
         '''
-        target = AI.lowest_hp_player(kwargs['player_list'])
+
+        # To solve the problem of intermittently not executing the function, I put it in a loop.
+        target = None
+        while target is None:
+            target = self.choose_target(kwargs['player_list'], kwargs['previous_target'])
+
         state = self.choose_state(kwargs['player_list'], target.health_point)
         if state == 'a':
             result = self.attack(target)
@@ -189,6 +195,7 @@ class AI(Unit):
             'target': target.name if state == 'a' else 'itself',
             'damage': result['damage'],  # atk or heal
             'exp': result['exp'],
+            'previous_target': target if state == 'a' else None,
         }
 
     def choose_state(self, player_list, lowest_player_hp):
@@ -246,13 +253,21 @@ class AI(Unit):
 
         return result // 3
 
-    @staticmethod
-    def lowest_hp_player(player_list):
-        weak_player = player_list[0]
+    def choose_target(self, player_list, previous_target, call_stack=0):
+        '''
+        Find the right opponent.
 
-        for player in player_list:
-            if 5 < abs(player.health_point - weak_player.health_point) < 10:
-                if randint(1, 4) == 3:
+        :param previous_target:
+        :param player_list:
+        :param call_stack: (int) Avoid recursive infinite loops
+        :return:
+        '''
+        living_player_list = list(filter(lambda p: not p.is_dead, player_list))
+        weak_player = living_player_list[0]
+
+        for player in living_player_list:
+            if 30 < abs(player.health_point - weak_player.health_point) < 60:
+                if randint(1, 3) == 3:
                     weak_player = player
             elif player.health_point < weak_player.health_point:
                 weak_player = player
@@ -260,7 +275,10 @@ class AI(Unit):
                 if player.character_type == CharacterTypes.warrior.value:
                     weak_player = player
 
-        return weak_player
-
-
-
+        if previous_target is not None and weak_player == previous_target:
+            if randint(1, 3) != 3 and call_stack < 3:
+                self.choose_target(player_list, call_stack + 1)
+            else:
+                return weak_player
+        else:
+            return weak_player

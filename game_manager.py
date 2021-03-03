@@ -41,6 +41,7 @@ class GameManager:
         self.unit_slot = []
         self.player_slot = []
         self.ai_slot = []
+        self.previous_target = None
 
         # Save it as a variable to avoid unnecessary method execution.
         character_types_list = CharacterTypes.make_list()

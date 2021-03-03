@@ -36,30 +36,31 @@ class CoreThread(threading.Thread):
         global gm
         global game_view
         global player_control_dict
+        game_switch = True
 
         # never-end loop
-        while True:
-            # if game finish thread loop is stopped.
-            if gm.is_player_win():
-                fontStyle = Font(size=18)
-                result_label = Label(game_view.Battler, text="You Win!", font=fontStyle)
-                game_view.Battler.create_window(240, 240, anchor=CENTER, window=result_label)
-
-                # game finish log
-                file_log('Game finish. Player win.')
-                break
-
-            elif gm.is_ai_win():
-                fontStyle = Font(size=18)
-                result_label = Label(game_view.Battler, text="You Lose...", font=fontStyle)
-                game_view.Battler.create_window(240, 240, anchor=CENTER, window=result_label)
-
-                # game finish log
-                file_log('Game finish. Player Lose.')
-                break
-
+        while game_switch:
             # if for-statements is ended, a turn is gone.
             for slot in gm.unit_slot:
+                # if game finish thread loop is stopped.
+                if gm.is_player_win():
+                    fontStyle = Font(size=18)
+                    result_label = Label(game_view.Battler, text="You Win!", font=fontStyle)
+                    game_view.Battler.create_window(240, 240, anchor=CENTER, window=result_label)
+                    game_switch = False
+                    # game finish log
+                    file_log('Game finish. Player win.')
+                    break
+
+                elif gm.is_ai_win():
+                    fontStyle = Font(size=18)
+                    result_label = Label(game_view.Battler, text="You Lose...", font=fontStyle)
+                    game_view.Battler.create_window(240, 240, anchor=CENTER, window=result_label)
+                    game_switch = False
+                    # game finish log
+                    file_log('Game finish. Player Lose.')
+                    break
+
                 # turn start
                 file_log(f'{slot.unit.name}\'s turn start')
 
@@ -73,7 +74,8 @@ class CoreThread(threading.Thread):
                     show_player_control()
                     result = slot.unit.do(**player_control_dict)
                 else:
-                    result = slot.unit.do(**{'player_list': gm.player_slot})
+                    result = slot.unit.do(**{'player_list': gm.player_slot, 'previous_target': gm.previous_target})
+                    gm.previous_target = result['previous_target']
 
                 # Update displayed HP.
                 slot.hp_string_var.set(slot.unit.hp_for_display())
@@ -91,6 +93,7 @@ class CoreThread(threading.Thread):
 
                 # turn end log
                 file_log(f'{slot.unit.name}\'s turn start')
+                game_view.Battler.update()
 
 
 def log(result):
