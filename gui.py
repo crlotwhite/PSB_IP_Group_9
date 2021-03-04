@@ -193,6 +193,7 @@ def show_player_control():
     # toplevel is opened log
     file_log('Player UI open')
 
+    # set focus to this TopLevel
     top_level.focus_set()
     top_level.wait_window()
 
@@ -275,11 +276,13 @@ if __name__ == '__main__':
     root.geometry(f'480x480+{center_of_monitor[0]}+{center_of_monitor[1]}')
     # widnow's location width x height + north point + west point
 
+    # create frame
     game_view = Frame(root)
     game_view.Battler = Canvas(game_view, width=480, height=480)
     game_view.Battler.pack(fill=BOTH)
     game_view.pack()
 
+    # create coin label
     event_controller = Toplevel(root)
     event_controller_x = game_view.winfo_x() - 160
     event_controller_y = game_view.winfo_y()
@@ -289,29 +292,34 @@ if __name__ == '__main__':
     event_controller.Label1.place(x=10, y=8, height=21, width=50)
     event_controller.Label1.configure(text='''Coin''')
 
-    # TODO: need to change str to ICON
-    event_controller.Button1 = Button(event_controller, font=fontStyle, command=lambda x: print('1'))
+    # create Coin Button
+    event_controller.Button1 = Button(event_controller, font=fontStyle)
     event_controller.Button1.place(x=8, y=35, height=32, width=32)
     event_controller.Button1.configure(pady="0")
     event_controller.Button1.configure(text='''C''')
 
+    # create label
     event_controller.lblCoin = Label(event_controller, textvariable=coin_strvar, font=fontStyle, anchor=E)
     event_controller.lblCoin.place(x=60, y=39, height=21, width=220)
     event_controller.lblCoin.configure(text='''314,159''')
 
+    # create label
     event_controller.Label2 = Label(event_controller, font=fontStyle)
     event_controller.Label2.place(x=8, y=75, height=23, width=164)
     event_controller.Label2.configure(text='''Game Log''')
 
+    # create Game Log text box
     event_controller.txtLogBox = Text(event_controller)
     event_controller.txtLogBox.place(x=0, rely=0.221, width=300, height=320)
     event_controller.txtLogBox.configure(wrap="word")
 
+    # create Option button
     event_controller.Button2 = Button(event_controller, font=fontStyle)
     event_controller.Button2.place(x=8, rely=0.919, height=27, width=64)
     event_controller.Button2.configure(pady="0")
     event_controller.Button2.configure(text='''Option''')
 
+    # create Restart button
     event_controller.Button3 = Button(event_controller, font=fontStyle, command=restart)
     event_controller.Button3.place(x=224, rely=0.919, height=27, width=68)
     event_controller.Button3.configure(pady="0")
@@ -320,6 +328,7 @@ if __name__ == '__main__':
     # component loaded log
     file_log('All gui components are loaded completely')
 
+    # game set up
     gm = GameManager()
     initialize_game()
 
