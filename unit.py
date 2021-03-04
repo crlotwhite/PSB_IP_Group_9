@@ -25,12 +25,14 @@ class Unit:
 
     @health_point.setter
     def health_point(self, health_point):
-        # if total health point is over 100, do not any thing
+        # if total health point is over 100, just input 100
         # or not if hp is under 0, just input 0
-        if 100 >= health_point > 0:
-            self._health_point = health_point
+        if health_point >= 100:
+            self._health_point = 100
         elif health_point < 0:
             self._health_point = 0
+        else:
+            self._health_point = health_point
 
     @property
     def level(self):
@@ -39,7 +41,9 @@ class Unit:
     @level.setter
     def level(self, level):
         # do not level up more than 10.
-        if level <= 10:
+        if level > 10:
+            self._level = 10
+        else:
             self._level = level
 
     def hp_for_display(self):
