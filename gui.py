@@ -197,6 +197,67 @@ def show_player_control():
     top_level.wait_window()
 
 
+def initialize_game():
+    '''Outputs slot data.'''
+
+    global game_view
+
+    # Background Image Update
+    background = PhotoImage(file='./resources/bg.png')
+    game_view.Battler.create_image(0, 0, anchor=NW, image=background)
+
+    for slot in gm.unit_slot:
+        # unit slot logginh
+        file_log(f'{slot.unit.name}\'s slot is displaying')
+
+        # create hp, name labels
+        hp_label = Label(game_view.Battler, textvariable=slot.hp_string_var)
+        hp_x, hp_y = slot.hp_position
+        game_view.Battler.create_window(hp_x, hp_y, anchor=NW, window=hp_label)
+
+        name_label = Label(game_view.Battler, textvariable=slot.name_string_var)
+        name_x, name_y = slot.name_position
+        game_view.Battler.create_window(name_x, name_y, anchor=NW, window=name_label)
+
+        # label's string var initialize.
+        slot.hp_string_var.set(slot.unit.hp_for_display())
+        slot.name_string_var.set(slot.unit.name)
+
+        # Character Image Update
+        cx, cy = slot.character_position
+        game_view.Battler.create_image(cx, cy, anchor=NW, image=slot.character_image)
+
+        # hp update
+        slot.hp_string_var.set(slot.unit.hp_for_display())
+
+        # Level update
+        lx, ly = slot.rank_position
+        game_view.Battler.create_image(lx, ly, anchor=NW, image=slot.rank_image)
+
+    # finish initialize log
+    file_log('All slots are ready')
+
+
+def restart():
+    global gm
+    global game_view
+
+    file_log('game is restarted')
+
+    # clear GUI component
+    game_view.Battler.delete('all')
+    event_controller.txtLogBox.delete('1.0', END)
+
+    # initialize game data
+    gm = GameManager()
+    initialize_game()
+
+    # Core System Thread Start
+    core = CoreThread(1, 'core', 1)
+    core.start()
+    file_log('Core routine started')
+
+
 if __name__ == '__main__':
     # start log
     file_log('game start')
@@ -251,7 +312,7 @@ if __name__ == '__main__':
     event_controller.Button2.configure(pady="0")
     event_controller.Button2.configure(text='''Option''')
 
-    event_controller.Button3 = Button(event_controller, font=fontStyle, command=lambda _: print('hi'))
+    event_controller.Button3 = Button(event_controller, font=fontStyle, command=restart)
     event_controller.Button3.place(x=224, rely=0.919, height=27, width=68)
     event_controller.Button3.configure(pady="0")
     event_controller.Button3.configure(text='''Restart''')
@@ -260,41 +321,7 @@ if __name__ == '__main__':
     file_log('All gui components are loaded completely')
 
     gm = GameManager()
-
-    # Background Image Update
-    background = PhotoImage(file='./resources/bg.png')
-    game_view.Battler.create_image(0, 0, anchor=NW, image=background)
-
-    for slot in gm.unit_slot:
-        # unit slot logginh
-        file_log(f'{slot.unit.name}\'s slot is displaying')
-
-        # create hp, name labels
-        hp_label = Label(game_view.Battler, textvariable=slot.hp_string_var)
-        hp_x, hp_y = slot.hp_position
-        game_view.Battler.create_window(hp_x, hp_y, anchor=NW, window=hp_label)
-
-        name_label = Label(game_view.Battler, textvariable=slot.name_string_var)
-        name_x, name_y = slot.name_position
-        game_view.Battler.create_window(name_x, name_y, anchor=NW, window=name_label)
-
-        # label's string var initialize.
-        slot.hp_string_var.set(slot.unit.hp_for_display())
-        slot.name_string_var.set(slot.unit.name)
-
-        # Character Image Update
-        cx, cy = slot.character_position
-        game_view.Battler.create_image(cx, cy, anchor=NW, image=slot.character_image)
-
-        # hp update
-        slot.hp_string_var.set(slot.unit.hp_for_display())
-
-        # Level update
-        lx, ly = slot.rank_position
-        game_view.Battler.create_image(lx, ly, anchor=NW, image=slot.rank_image)
-
-    # finish initialize log
-    file_log('All slots are ready')
+    initialize_game()
 
     # Core System Thread Start
     core = CoreThread(1, 'core', 1)
