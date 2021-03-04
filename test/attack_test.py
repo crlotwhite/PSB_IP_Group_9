@@ -63,7 +63,7 @@ class MockUnit(Unit):
             }
 
 
-class MyTestCase(unittest.TestCase):
+class AttackTest(unittest.TestCase):
     def setUp(self):
         self.u1 = MockUnit('warrior')
         self.u2 = MockUnit('warrior')
@@ -74,7 +74,6 @@ class MyTestCase(unittest.TestCase):
 
         self.assertEqual(self.u2.health_point, 95)
         self.assertEqual(self.u1.exp, 50)
-        self.assertEqual(self.u2.exp, 7.5)
 
     def test_kill_test(self):
         self.u2.health_point = 5

@@ -1,14 +1,17 @@
 # PSB_IP_Group_9
 
 # PyCharm Setup
-pip install -r requirements.txt
+$ pip install -r requirements.txt
 
 # not PyCharm Step
-pip install venv
+$ pip install venv
 
-python -m venv venv
+$ python -m venv venv
 
-./venv/bin/activate.bat
+$ ./venv/bin/activate.bat
 
-pip install -r requirements.txt
+$ pip install -r requirements.txt
 
+# Test Project
+$ pip install -r requirements.txt
+$ pytest

@@ -10,7 +10,7 @@ class MockGameManager(GameManager):
         self.ai_slot = [Unit('warrior') for _ in range(3)]
 
 
-class MyTestCase(unittest.TestCase):
+class GameResultTest(unittest.TestCase):
     def setUp(self):
         self.gm = MockGameManager()
 
