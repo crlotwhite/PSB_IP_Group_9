@@ -271,8 +271,8 @@ class AI(Unit):
         weak_player = living_player_list[0]
 
         for player in living_player_list:
-            if 30 < abs(player.health_point - weak_player.health_point) < 60:
-                # Attempts to attack users with moderate stamina with priority.
+            if 10 < abs(player.health_point - weak_player.health_point) < 60:
+                # Attempts to attack users with moderate HP with priority.
                 # This logic is applied with a 2/3 probability.
                 if randint(1, 3) == 3:
                     weak_player = player
@@ -289,7 +289,7 @@ class AI(Unit):
             # In the case of the previously selected user, it is selected again with a 2/3 probability.
             # Limit the call stack to 3 to avoid the possibility of infinite recursion.
             if randint(1, 3) != 3 and call_stack < 3:
-                self.choose_target(player_list, call_stack + 1)
+                self.choose_target(player_list, previous_target, call_stack + 1)
             else:
                 return weak_player
         else:
